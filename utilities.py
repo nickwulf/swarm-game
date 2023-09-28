@@ -26,7 +26,7 @@ def colorFade(color, ratio):
   return color + (ratio*255,)
   
 def decide(scoreList, fudge):
-  for i in xrange(len(scoreList)):
+  for i in range(len(scoreList)):
     scoreList[i] += fudge * random.random()
   return scoreList.index(max(scoreList))
   
@@ -43,9 +43,9 @@ def handleInputEvents():
       glob.safeExit = True
       sys.exit()
     elif event.type == MOUSEMOTION:
-      glob.mousePos = event.pos
+      glob.mouseDrawPos = event.pos
     elif event.type == MOUSEBUTTONDOWN:
-      glob.mousePos = event.pos
+      glob.mouseDrawPos = event.pos
       if event.button == 1:
         glob.mouseLeftButtonClicked = True
         glob.mouseLeftButtonHeld = True
@@ -53,7 +53,7 @@ def handleInputEvents():
         glob.mouseRightButtonClicked = True
         glob.mouseRightButtonHeld = True
     elif event.type == MOUSEBUTTONUP:
-      glob.mousePos = event.pos
+      glob.mouseDrawPos = event.pos
       if event.button == 1:
         glob.mouseLeftButtonUnclicked = True
         glob.mouseLeftButtonHeld = False
@@ -65,19 +65,38 @@ def handleInputEvents():
         glob.spacePressed = True
       if event.key == K_LSHIFT:
         glob.shiftHeld = True
+      if event.key == K_a:
+        glob.aHeld = True
+      if event.key == K_d:
+        glob.dHeld = True
+      if event.key == K_w:
+        glob.wHeld = True
+      if event.key == K_s:
+        glob.sHeld = True
     elif event.type == KEYUP:
       if event.key == K_LSHIFT:
         glob.shiftHeld = False
+      if event.key == K_a:
+        glob.aHeld = False
+      if event.key == K_d:
+        glob.dHeld = False
+      if event.key == K_w:
+        glob.wHeld = False
+      if event.key == K_s:
+        glob.sHeld = False
+  
+  glob.mousePos = glob.mouseDrawPos[0]+glob.winPos[0], glob.mouseDrawPos[1]+glob.winPos[1]
   
 def drawHud():
   ########## Draw Select Box ############################
   if isinstance(glob.userPlayer, Human):
     if glob.userPlayer.selectRect is not None:
       if glob.userPlayer.selectRect.width > 0 and glob.userPlayer.selectRect.height > 0:
-        pygame.gfxdraw.box(glob.windowSurface, glob.userPlayer.selectRect, colorFade(glob.userPlayer.color,0.1))
-        pygame.gfxdraw.rectangle(glob.windowSurface, glob.userPlayer.selectRect.inflate(-2,2), (64,64,64,128))
-        pygame.gfxdraw.rectangle(glob.windowSurface, glob.userPlayer.selectRect.inflate(2,-2), (64,64,64,128))
-        pygame.gfxdraw.rectangle(glob.windowSurface, glob.userPlayer.selectRect, (64,64,64,255))
+        drawRect = glob.userPlayer.selectRect.move(-glob.winPos[0], -glob.winPos[1])
+        pygame.gfxdraw.box(glob.windowSurface, drawRect, colorFade(glob.userPlayer.color,0.1))
+        pygame.gfxdraw.rectangle(glob.windowSurface, drawRect.inflate(-2,2), (64,64,64,128))
+        pygame.gfxdraw.rectangle(glob.windowSurface, drawRect.inflate(2,-2), (64,64,64,128))
+        pygame.gfxdraw.rectangle(glob.windowSurface, drawRect, (64,64,64,255))
         
   ########## Draw Side Display ##########################
   # Draw base image
@@ -102,7 +121,7 @@ def drawHud():
     AccumPlayerGrowths.append(totalGrowth)
   
   # Draw population bar
-  for i in xrange(len(AccumPlayerPops)-1):
+  for i in range(len(AccumPlayerPops)-1):
     if AccumPlayerPops[i] == AccumPlayerPops[i+1]:
       continue
     barTop = round(800.0*AccumPlayerPops[i]/totalPop)
@@ -110,7 +129,7 @@ def drawHud():
     pygame.gfxdraw.box(glob.windowSurface, (1120,50+barTop,20,barBottom-barTop), glob.playerList[i].color)
     
   # Draw growth bar
-  for i in xrange(len(AccumPlayerGrowths)-1):
+  for i in range(len(AccumPlayerGrowths)-1):
     if AccumPlayerGrowths[i] == AccumPlayerGrowths[i+1]:
       continue
     barTop = round(800.0*AccumPlayerGrowths[i]/totalGrowth)
@@ -118,12 +137,12 @@ def drawHud():
     pygame.gfxdraw.box(glob.windowSurface, (1160,50+barTop,20,barBottom-barTop), glob.playerList[i].color)
     
 def createBackground(width, height, scale):
-  for color in xrange(3):
+  for color in range(3):
     polyDegree = 4 # 2D polynomial goes up to x^4*y^4
     polyDegree += 1
     polyMatrix = np.zeros((polyDegree,polyDegree), np.float32)
-    for a in xrange(polyDegree):
-      for b in xrange(polyDegree):
+    for a in range(polyDegree):
+      for b in range(polyDegree):
         polyMatrix[a,b] = (random.gauss(0,1))/(1+a*b)
         
     valArray = np.zeros((width,height), np.float32)
@@ -131,10 +150,10 @@ def createBackground(width, height, scale):
     yRes = 2.0/height
     xVal = -1
     yValMatrixList = []
-    for x in xrange(width):
+    for x in range(width):
       yVal = -1
       xValMatrix = np.power(xVal, np.arange(polyDegree, dtype=np.float32)).reshape(polyDegree,1)
-      for y in xrange(height):
+      for y in range(height):
         if x == 0:
           yValMatrixList.append(np.power(yVal, np.arange(polyDegree,dtype=np.float32)).reshape(1,polyDegree))
         newPolyMatrix = np.array(polyMatrix)
@@ -158,8 +177,8 @@ def createBackground(width, height, scale):
   
   bg = pygame.Surface((width,height))
   bgArray = pygame.PixelArray(bg)
-  for x in xrange(width):
-    for y in xrange(height):
+  for x in range(width):
+    for y in range(height):
       bgArray[x,y]=valArrayR[x,y],valArrayG[x,y],valArrayB[x,y]
   
   return pygame.transform.smoothscale(bg, (width*scale, height*scale))
@@ -219,7 +238,7 @@ def getWinner(countNeutral=False):
   for c in glob.caravanList:
     aliveList[glob.playerList.index(c.player)] = True
   if not countNeutral:
-    for pId in xrange(len(glob.playerList)):
+    for pId in range(len(glob.playerList)):
       if isinstance(glob.playerList[pId], Neutral):
         aliveList[pId] = False
   if aliveList.count(True) == 1:

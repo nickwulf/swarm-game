@@ -15,7 +15,7 @@ class Pointer:
     rawPointerSurf = pygame.image.load(os.path.join("images", "Pointer.bmp"))
     frameCount = int(rawPointerSurf.get_width()/frameSize)
     self.frames = []
-    for i in xrange(frameCount):
+    for i in range(frameCount):
       self.frames.append(pygame.Surface((frameSize,frameSize), flags=SRCALPHA))
       self.frames[i].blit(rawPointerSurf, (-i*frameSize,0))
     self.idleFrames = []
@@ -32,13 +32,13 @@ class Pointer:
 
   def draw(self):
     pic = self.frames[self.idleFrames[self.stateFrame]]
-    glob.windowSurface.blit(pic, (glob.mousePos[0], glob.mousePos[1]))
+    glob.windowSurface.blit(pic, (glob.mouseDrawPos[0], glob.mouseDrawPos[1]))
     self.stateFrame += 1
     if self.stateFrame >= len(self.idleFrames):
       self.stateFrame = 0
     
   def makeCloneList(self, value, count):
     list = []
-    for i in xrange(count):
+    for i in range(count):
       list.append(value)
     return list

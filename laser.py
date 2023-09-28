@@ -32,6 +32,7 @@ class Laser:
     self.shooting = False
     self.thickness = random.uniform(0,2)
     self.gunPos = (0, 0)
+    self.gunDrawPos = self.gunPos[0]-glob.winPos[0], self.gunPos[1]-glob.winPos[1]
     
   def update(self):
     maxDistSq = (self.range + self.planet.size)**2
@@ -89,8 +90,10 @@ class Laser:
     self.gunPos = offset2[0]+offset3[0], offset2[1]+offset3[1]
     if self.shooting:
       sparkCount = util.getPoissonCount(6.0*glob.gameTimeStep)
-      for i in xrange(sparkCount):
+      for i in range(sparkCount):
         glob.particleList.append(LaserSpark(self.gunPos,self.angle, random.uniform(-180,180),random.uniform(60,180),self.planet.player.color, 0.5, 0.1))
+        
+    self.gunDrawPos = self.gunPos[0]-glob.winPos[0], self.gunPos[1]-glob.winPos[1]
     
   def draw(self):
     # Draw beam
@@ -103,16 +106,15 @@ class Laser:
       points = [(0,self.thickness), (targetDist,self.thickness), (targetDist,-self.thickness), (0,-self.thickness)]
       angleCos = math.cos(math.radians(self.angle))
       angleSin = math.sin(math.radians(self.angle))
-      for i in xrange(len(points)):
-        points[i] = self.gunPos[0]+points[i][0]*angleCos - points[i][1]*angleSin, self.gunPos[1]+points[i][0]*angleSin + points[i][1]*angleCos
+      for i in range(len(points)):
+        points[i] = self.gunDrawPos[0]+points[i][0]*angleCos - points[i][1]*angleSin, self.gunDrawPos[1]+points[i][0]*angleSin + points[i][1]*angleCos
       pygame.gfxdraw.filled_polygon(glob.windowSurface, points, beamColor)
       pygame.gfxdraw.aapolygon(glob.windowSurface, points, beamColor)
       
-    
     # Draw gun
     tempDrawSurf = pygame.transform.rotozoom(self.drawSurf, -self.angle, 1)
     offset1 = -tempDrawSurf.get_width()/2, -tempDrawSurf.get_height()/2
-    glob.windowSurface.blit(tempDrawSurf, (offset1[0]+self.gunPos[0], offset1[1]+self.gunPos[1]))
+    glob.windowSurface.blit(tempDrawSurf, (offset1[0]+self.gunDrawPos[0], offset1[1]+self.gunDrawPos[1]))
     
   def getDeltaAngle(self, targetAngle):
     # Returns difference between self.angle and targetAngle between -180 and 180 degrees

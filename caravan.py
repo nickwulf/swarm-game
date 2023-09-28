@@ -17,6 +17,7 @@ class Caravan:
     self.population = population
     self.unexplodedPop = population
     self.pos = originPlanet.pos
+    self.drawPos = self.pos[0]-glob.winPos[0], self.pos[1]-glob.winPos[1]
     self.oldPos = self.pos
     self.dir = self.destPlanet.pos[0]-self.pos[0], self.destPlanet.pos[1]-self.pos[1]
     distance = math.sqrt(self.dir[0]**2 + self.dir[1]**2)
@@ -44,6 +45,7 @@ class Caravan:
           self.destPlanet.population *= -1
       glob.caravanList.remove(self)
       return
+    self.drawPos = self.pos[0]-glob.winPos[0], self.pos[1]-glob.winPos[1]
       
   def update2(self):
     if self.population <= 0:
@@ -58,13 +60,13 @@ class Caravan:
   
   def draw(self):
     if self.population <= 0:
-      print "Error 1"
+      print("Error 1")
       return
     drawSize = int(3*(self.population**(1.0/3)))
     if drawSize < 2:
       drawSize = 2
-    pygame.gfxdraw.filled_circle(glob.windowSurface, int(self.pos[0]), int(self.pos[1]), drawSize, self.player.color)
-    pygame.gfxdraw.aacircle(glob.windowSurface, int(self.pos[0]), int(self.pos[1]), drawSize, (0,0,0))
+    pygame.gfxdraw.filled_circle(glob.windowSurface, int(self.drawPos[0]), int(self.drawPos[1]), drawSize, self.player.color)
+    pygame.gfxdraw.aacircle(glob.windowSurface, int(self.drawPos[0]), int(self.drawPos[1]), drawSize, (0,0,0))
   
   def isAtDestination(self):
     xDiff = self.destPlanet.pos[0] - self.pos[0]

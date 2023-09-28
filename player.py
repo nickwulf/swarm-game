@@ -24,6 +24,7 @@ class Human:
     self.unselectTimer = 10
     self.boxInitPos = None
     self.selectRect = None
+    self.winVel = 0,0
   
   def update(self):
     self.unselectTimer += 1.0/glob.frameRate
@@ -73,6 +74,24 @@ class Human:
           glob.gameTimeStep = 10.0/glob.frameRate
         else:
           glob.gameTimeStep = 1.0/glob.frameRate
+      accelMag = 20*math.pow(math.hypot(self.winVel[0], self.winVel[1])+0.1,.3)
+      accelDir = 0.0, 0.0
+      if glob.aHeld:
+        accelDir = accelDir[0]-1, accelDir[1]
+      if glob.dHeld:
+        accelDir = accelDir[0]+1, accelDir[1]
+      if glob.wHeld:
+        accelDir = accelDir[0], accelDir[1]-1
+      if glob.sHeld:
+        accelDir = accelDir[0], accelDir[1]+1
+      if accelDir[0] != 0 and accelDir[1] != 0:
+        self.winVel = math.sqrt(0.5)*accelMag*accelDir[0]+self.winVel[0], math.sqrt(0.5)*accelMag*accelDir[1]+self.winVel[1]
+      else:
+        self.winVel = accelMag*accelDir[0]+self.winVel[0], accelMag*accelDir[1]+self.winVel[1]
+        
+    glob.winPosRaw = glob.winPosRaw[0]+self.winVel[0]/glob.frameRate, glob.winPosRaw[1]+self.winVel[1]/glob.frameRate
+    self.winVel = self.winVel[0]*.9, self.winVel[1]*.9
+    glob.winPos = int(glob.winPosRaw[0]), int(glob.winPosRaw[1])
     
     self.calcSelectRect()
       

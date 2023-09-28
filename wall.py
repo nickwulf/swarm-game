@@ -64,7 +64,7 @@ class Wall:
         if sparkCount < 5:
           sparkCount = 5
         speedAlpha = sparkCount**(1.0/3)
-        for i in xrange(sparkCount):
+        for i in range(sparkCount):
           speed = 35*speedAlpha*math.sqrt(-2*math.log(random.random()))
           glob.particleList.append(LaserSpark(intersect, random.uniform(-180,180), 0, speed, sparkColor, 0.5, 0.1))
         if self.strength is not None:
@@ -106,12 +106,12 @@ class Wall:
     
     # Make sparks
     sparkCount = util.getPoissonCount((50.0-strengthScale*47.0)*glob.gameTimeStep)
-    for i in xrange(sparkCount):
+    for i in range(sparkCount):
       divergence = random.gauss(self.angle,10)
       speed = 100*math.sqrt(-2*math.log(random.random()))
       glob.particleList.append(LaserSpark(self.pos1, divergence, 0, speed, sparkColor, 0.5, 0.1))
     sparkCount = util.getPoissonCount((50.0-strengthScale*47.0)*glob.gameTimeStep)
-    for i in xrange(sparkCount):
+    for i in range(sparkCount):
       divergence = random.gauss(self.angle+180,10)
       speed = 100*math.sqrt(-2*math.log(random.random()))
       glob.particleList.append(LaserSpark(self.pos2, divergence, 0, speed, sparkColor, 0.5, 0.1))
@@ -121,17 +121,17 @@ class Wall:
       arcColor = (0,0,0)
     else:
       arcColor = util.changeLuminosity(self.player.color, 50)
-    for i in xrange(len(self.arcs)):
-      for j in xrange(len(self.arcs[i])-1):
-        pygame.gfxdraw.line(glob.windowSurface, self.arcs[i][j][0], self.arcs[i][j][1], self.arcs[i][j+1][0], self.arcs[i][j+1][1], (arcColor[0],arcColor[1],arcColor[2],int(255*self.arcLives[i]/self.maxArcLives[i])))
+    for i in range(len(self.arcs)):
+      for j in range(len(self.arcs[i])-1):
+        pygame.gfxdraw.line(glob.windowSurface, self.arcs[i][j][0]-glob.winPos[0], self.arcs[i][j][1]-glob.winPos[1], self.arcs[i][j+1][0]-glob.winPos[0], self.arcs[i][j+1][1]-glob.winPos[1], (arcColor[0],arcColor[1],arcColor[2],int(255*self.arcLives[i]/self.maxArcLives[i])))
     drawAngle = self.angle
     if drawAngle == 0 or drawAngle == 180:
       drawAngle += 0.1
     tempDrawSurf = pygame.transform.rotozoom(self.drawSurf, -drawAngle, 1)
     offset = tempDrawSurf.get_width()/2
-    glob.windowSurface.blit(tempDrawSurf, (self.pos1[0]-offset, self.pos1[1]-offset))
+    glob.windowSurface.blit(tempDrawSurf, (self.pos1[0]-offset-glob.winPos[0], self.pos1[1]-offset-glob.winPos[1]))
     tempDrawSurf = pygame.transform.rotozoom(self.drawSurf, 180-drawAngle, 1)
-    glob.windowSurface.blit(tempDrawSurf, (self.pos2[0]-offset, self.pos2[1]-offset))
+    glob.windowSurface.blit(tempDrawSurf, (self.pos2[0]-offset-glob.winPos[0], self.pos2[1]-offset-glob.winPos[1]))
     
   def generatePoints(self):
     distances = [0]
@@ -143,12 +143,12 @@ class Wall:
     distances.pop()
     distances.append(self.dist)
     divergences = [0]
-    for i in xrange(1,len(distances)-1):
+    for i in range(1,len(distances)-1):
       divergences.append(random.expovariate(1.0/2))
       if random.random() < .5:
         divergences[i] *= -1
     divergences.append(0)
     points = []
-    for i in xrange(len(distances)):
+    for i in range(len(distances)):
       points.append((int(round(self.pos1[0]+distances[i]*self.vectorPar[0]+divergences[i]*self.vectorPerp[0])), int(round(self.pos1[1]+distances[i]*self.vectorPar[1]+divergences[i]*self.vectorPerp[1]))))
     return points

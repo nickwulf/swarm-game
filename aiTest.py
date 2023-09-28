@@ -30,7 +30,7 @@ class AiTest:
     # Gather results
     self.gameList1 = []
     self.gameList2 = []
-    for i in xrange(self.battleNum):
+    for i in range(self.battleNum):
       results = self.runBattle()
     graphPic = self.makeGraphPic()
     
@@ -58,7 +58,7 @@ class AiTest:
     gameTimer = 0
     while not gameOver:
       util.handleInputEvents()
-      for i in xrange(self.stepsPerFrame):
+      for i in range(self.stepsPerFrame):
         if util.getWinner() is None:
           gameTimer += glob.gameTimeStep
         else:
@@ -122,7 +122,7 @@ class AiTest:
     # Calculate graph data
     valueBins1 = []
     valueBins2 = []
-    for x in xrange(graphDim[0]+1):
+    for x in range(graphDim[0]+1):
       valueBins1.append(0)
       valueBins2.append(0)
       xVal = 1.0*x/graphDim[0]*maxTime
@@ -139,7 +139,7 @@ class AiTest:
     maxWins = int(math.ceil(4*max(max(valueBins1),max(valueBins2))))/4.0
     
     # Adjust graph data vertically to match graphDim
-    for x in xrange(len(valueBins1)):
+    for x in range(len(valueBins1)):
       valueBins1[x] = 1.0*valueBins1[x]/maxWins*graphDim[1]
       valueBins2[x] = 1.0*valueBins2[x]/maxWins*graphDim[1]
     
@@ -147,7 +147,7 @@ class AiTest:
     surf.fill((232,232,232))
     
     # Draw the data
-    for x in xrange(graphDim[0]):
+    for x in range(graphDim[0]):
       pygame.draw.aaline(surf, (0,0,255), (graphOrigin[0]+x, graphOrigin[1]-valueBins1[x]), (graphOrigin[0]+x+1, graphOrigin[1]-valueBins1[x+1]))
       pygame.draw.aaline(surf, (255,0,0), (graphOrigin[0]+x, graphOrigin[1]-valueBins2[x]), (graphOrigin[0]+x+1, graphOrigin[1]-valueBins2[x+1]))
       
@@ -155,12 +155,12 @@ class AiTest:
     graphFont = pygame.font.SysFont("arial", 20, True, False)
     pygame.draw.line(surf, (0,0,0), graphOrigin, (graphOrigin[0], graphOrigin[1]-graphDim[1]))
     pygame.draw.line(surf, (0,0,0), graphOrigin, (graphOrigin[0]+graphDim[0], graphOrigin[1]))
-    for x in xrange(maxTime/120 + 1):
+    for x in range(maxTime/120 + 1):
       offset = x*120.0/maxTime*graphDim[0]
       offset = int(round(offset))
       pygame.draw.line(surf, (0,0,0), (graphOrigin[0]+offset, graphOrigin[1]), (graphOrigin[0]+offset, graphOrigin[1]+5))
       util.drawText(x*2, (graphOrigin[0]+offset, graphOrigin[1]+15), graphFont, surf)
-    for y in xrange(6):
+    for y in range(6):
       offset = y/5.0*graphDim[1]
       offset = int(round(offset))
       pygame.draw.line(surf, (0,0,0), (graphOrigin[0], graphOrigin[1]-offset), (graphOrigin[0]-5, graphOrigin[1]-offset))

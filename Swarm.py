@@ -28,7 +28,7 @@ glob.init()
 # Allows for debugging when error causes crash
 def press_any_key():
   if not glob.safeExit:
-    raw_input("Error: Press Enter to continue...")
+    input("Error: Press Enter to continue...")
 atexit.register(press_any_key)
 
 pygame.display.set_caption("Swarm")
