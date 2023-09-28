@@ -8,9 +8,13 @@ import globals as glob
 import utilities as util
 
 # Import user classes
+from aiTest import *
 from player import *
 from planet import *
 from caravan import *
+from particle import *
+from pointer import *
+from wall import *
 
 
 ####### Initialization ###################################
@@ -28,17 +32,21 @@ def press_any_key():
 atexit.register(press_any_key)
 
 pygame.display.set_caption("Swarm")
+pygame.mouse.set_visible(False)
 
-#util.graphAis(AiTest(), AiDumb(), 2, 1)
+aiTest = AiTest(AiDumb(), AiDumb2())
+#aiTest.runTest(2,100)
 
 glob.playerList = []
 glob.playerList.append(Human((64,64,191)))
 glob.playerList.append(Neutral((191,191,191)))
-glob.playerList.append(AiStupid((191,64,64)))
+glob.playerList.append(AiDumb2((191,64,64)))
+glob.userPlayer = glob.playerList[0]
 
-level = 2
+level = 3
 util.makeLevel(level)
 gameTimer = 0
+pointer = Pointer()
 
 while True:
   
@@ -60,25 +68,40 @@ while True:
     p.update()
   
   # Handle game action
-  for p in glob.planetList:
-    p.update()
   for c in glob.caravanList:
     c.update()
+  for w in glob.wallList:
+    w.update()
+  for p in glob.planetList:
+    p.update()
+  for p in glob.planetList:
+    for w in p.weapons:
+      w.update()
+  for p in glob.particleList:
+    p.update()
+  for c in glob.caravanList:
+    c.update2()
+
   
   ####### Update Display #################################
   glob.windowSurface.blit(glob.backgroundSurface, (0,0))
-  #glob.windowSurface.fill((232,232,232))
 
   for p in glob.planetList:
     p.drawBack()
   for p in glob.planetList:
     p.draw()
+  for p in glob.particleList:
+    p.draw()
+  for w in glob.wallList:
+    w.draw()
   for c in glob.caravanList:
     c.draw()
-  util.drawHUD()
-  util.drawText(int(gameTimer), (500,850))
+  util.drawHud()
+  util.drawText(int(gameTimer), (50,25))
+  util.drawText(int(glob.fpsClock.get_rawtime()), (50,50))
+  pointer.draw()
   
   # Draw buffer and wait
   pygame.display.update()
-  glob.fpsClock.tick_busy_loop(glob.frameRate)
+  glob.fpsClock.tick(glob.frameRate)
 

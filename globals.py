@@ -7,10 +7,11 @@ def init():
   global safeExit
   global windowSurface, fpsClock, fontObj, frameRate, backgroundSurface
   global mousePos, mouseLeftButtonClicked, mouseLeftButtonUnclicked, mouseLeftButtonHeld, mouseRightButtonClicked, mouseRightButtonUnclicked, mouseRightButtonHeld
-  global spacePressed
+  global spacePressed, shiftHeld
   global mousedPlanet
-  global playerList, planetList, caravanList
-  global gameTimeStep
+  global playerList, planetList, caravanList, particleList, wallList
+  global gameTimeStep, userToGameInteractionDisabled
+  global userPlayer
   
   safeExit = False
   
@@ -29,11 +30,17 @@ def init():
   mouseRightButtonHeld = False
   
   spacePressed = False
+  shiftHeld = False
   
   mousedPlanet = None
   
   playerList = []
   planetList = []
   caravanList = []
+  particleList = []
+  wallList = []
   
   gameTimeStep = 1.0 / frameRate
+  userToGameInteractionDisabled = False
+  
+  userPlayer = None

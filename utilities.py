@@ -9,16 +9,18 @@ import globals as glob
 from player import *
 from planet import *
 from caravan import *
+from wall import *
 
 # Displays message msg at the position pos on the screen.
-def drawText(msg, pos, font=None):
+def drawText(msg, pos, font=None, surf=None, color=(0,0,0)):
   if font is None:
     font = glob.fontObj
-  text = font.render(str(msg), True, (0,0,0))
+  if surf is None:
+    surf = glob.windowSurface
+  text = font.render(str(msg), True, color)
   textRect = text.get_rect()
   textRect.center = pos
-  glob.windowSurface.blit(text,textRect)
-  
+  surf.blit(text,textRect)
 
 def colorFade(color, ratio):
   return color + (ratio*255,)
@@ -61,8 +63,23 @@ def handleInputEvents():
     elif event.type == KEYDOWN:
       if event.key == K_SPACE:
         glob.spacePressed = True
+      if event.key == K_LSHIFT:
+        glob.shiftHeld = True
+    elif event.type == KEYUP:
+      if event.key == K_LSHIFT:
+        glob.shiftHeld = False
   
-def drawHUD():
+def drawHud():
+  ########## Draw Select Box ############################
+  if isinstance(glob.userPlayer, Human):
+    if glob.userPlayer.selectRect is not None:
+      if glob.userPlayer.selectRect.width > 0 and glob.userPlayer.selectRect.height > 0:
+        pygame.gfxdraw.box(glob.windowSurface, glob.userPlayer.selectRect, colorFade(glob.userPlayer.color,0.1))
+        pygame.gfxdraw.rectangle(glob.windowSurface, glob.userPlayer.selectRect.inflate(-2,2), (64,64,64,128))
+        pygame.gfxdraw.rectangle(glob.windowSurface, glob.userPlayer.selectRect.inflate(2,-2), (64,64,64,128))
+        pygame.gfxdraw.rectangle(glob.windowSurface, glob.userPlayer.selectRect, (64,64,64,255))
+        
+  ########## Draw Side Display ##########################
   # Draw base image
   pygame.gfxdraw.box(glob.windowSurface, (1100,0,100,900), (128,128,128))
   pygame.gfxdraw.rectangle(glob.windowSurface, (1119,49,22,802), (0,0,0))
@@ -150,44 +167,48 @@ def createBackground(width, height, scale):
 def makeLevel(level):
   glob.planetList = []
   glob.caravanList = []
+  glob.particleList = []
+  glob.wallList = []
   if level == 1:
-    glob.planetList.append(Planet((100,100), 35, 10, glob.playerList[0]))
+    glob.planetList.append(Planet((100,100), 35.36, 10, glob.playerList[0]))
     glob.planetList.append(Planet((350,150), 25, 5, glob.playerList[1]))
     glob.planetList.append(Planet((200,300), 50, 5, glob.playerList[1]))
-    glob.planetList.append(Planet((1000,800), 35, 10, glob.playerList[2]))
+    glob.planetList.append(Planet((1000,800), 35.36, 10, glob.playerList[2]))
     glob.planetList.append(Planet((750,750), 25, 5, glob.playerList[1]))
     glob.planetList.append(Planet((900,600), 50, 5, glob.playerList[1]))
   elif level == 2:
-    glob.planetList.append(Planet((100,450), 25, 20, glob.playerList[0]))
+    glob.planetList.append(Planet((100,450), 25, 10, glob.playerList[0]))
     glob.planetList.append(Planet((250,350), 25, 5, glob.playerList[1]))
     glob.planetList.append(Planet((250,550), 25, 5, glob.playerList[1]))
-    glob.planetList.append(Planet((400,250), 35, 10, glob.playerList[1]))
-    glob.planetList.append(Planet((400,450), 35, 10, glob.playerList[1]))
-    glob.planetList.append(Planet((400,650), 35, 10, glob.playerList[1]))
+    glob.planetList.append(Planet((400,250), 35.36, 10, glob.playerList[1]))
+    glob.planetList.append(Planet((400,450), 35.36, 10, glob.playerList[1]))
+    glob.planetList.append(Planet((400,650), 35.36, 10, glob.playerList[1]))
     glob.planetList.append(Planet((550,150), 50, 15, glob.playerList[1]))
     glob.planetList.append(Planet((550,350), 50, 15, glob.playerList[1]))
     glob.planetList.append(Planet((550,550), 50, 15, glob.playerList[1]))
     glob.planetList.append(Planet((550,750), 50, 15, glob.playerList[1]))
-    glob.planetList.append(Planet((700,250), 35, 10, glob.playerList[1]))
-    glob.planetList.append(Planet((700,450), 35, 10, glob.playerList[1]))
-    glob.planetList.append(Planet((700,650), 35, 10, glob.playerList[1]))
+    glob.planetList.append(Planet((700,250), 35.36, 10, glob.playerList[1]))
+    glob.planetList.append(Planet((700,450), 35.36, 10, glob.playerList[1]))
+    glob.planetList.append(Planet((700,650), 35.36, 10, glob.playerList[1]))
     glob.planetList.append(Planet((850,350), 25, 5, glob.playerList[1]))
     glob.planetList.append(Planet((850,550), 25, 5, glob.playerList[1]))
-    glob.planetList.append(Planet((1000,450), 25, 20, glob.playerList[2]))
-
-def countLivePlayers(countNeutral=False):
-  aliveList = []
-  for p in glob.playerList:
-    aliveList.append(False)
-  for p in glob.planetList:
-    aliveList[glob.playerList.index(p.player)] = True
-  for c in glob.caravanList:
-    aliveList[glob.playerList.index(c.player)] = True
-  if not countNeutral:
-    for pId in xrange(len(glob.playerList)):
-      if isinstance(glob.playerList[pId], Neutral):
-        aliveList[pId] = False
-  return aliveList.count(True)
+    glob.planetList.append(Planet((1000,450), 25, 10, glob.playerList[2]))
+    glob.planetList[7].addLaser(1, 250, 50)
+    glob.planetList[8].addLaser(1, 250, 50)
+  elif level == 3:
+    glob.planetList.append(Planet((100,120), 40, 15, glob.playerList[1]))
+    glob.planetList.append(Planet((100,240), 35, 10, glob.playerList[1]))
+    glob.planetList.append(Planet((100,350), 30, 7, glob.playerList[1]))
+    glob.planetList.append(Planet((100,450), 25, 5, glob.playerList[0]))
+    glob.planetList.append(Planet((100,550), 30, 7, glob.playerList[1]))
+    glob.planetList.append(Planet((100,660), 35, 10, glob.playerList[1]))
+    glob.planetList.append(Planet((100,780), 40, 15, glob.playerList[1]))
+    glob.planetList.append(Planet((1000,450), 75, 5, glob.playerList[2]))
+    glob.planetList.append(Planet((1000,200), 35, 150, glob.playerList[1]))
+    glob.planetList.append(Planet((1000,700), 35, 150, glob.playerList[1]))
+    glob.planetList[8].addLaser(5, 800, 100)
+    glob.planetList[9].addLaser(5, 800, 100)
+    glob.wallList.append(Wall((400,200), (600,700), glob.playerList[1], 100))
   
 def getWinner(countNeutral=False):
   aliveList = []
@@ -205,101 +226,106 @@ def getWinner(countNeutral=False):
     return glob.playerList[aliveList.index(True)]
   else:
     return None
-
-def testAiBattle(ai1, ai2, level):
-  glob.playerList = []
-  glob.playerList.append(ai1)
-  glob.playerList.append(Neutral((191,191,191)))
-  glob.playerList.append(ai2)
-  makeLevel(level)
-  gameTimer = 0
-  fpsClock = pygame.time.Clock()
-  while getWinner() is None:
-    gameTimer += glob.gameTimeStep
-    # Handle player inputs
-    for p in glob.playerList:
-      p.update()
-    # Handle game action
-    for p in glob.planetList:
-      p.update()
-    for c in glob.caravanList:
-      c.update()
-  if getWinner() is ai1:
-    return 1, gameTimer
-  else:
-    return 2, gameTimer
-
-def graphAis(ai1, ai2, level, iterations):
-  graphFont = pygame.font.SysFont("arial", 20, True, False)
-  graphDim = 500,300
-  graphOrigin = 300,600
-  maxTime = 20*60
-  binWidth = 1.0*maxTime/graphDim[0]
-  
-  # Set parameters of Gaussian filter
-  stdDev = 15
-  variance = stdDev**2
-  gaussScale = 1.0/stdDev/math.sqrt(2.0*math.pi)
-  
-  # Gather results
-  gameList1 = []
-  gameList2 = []
-  for i in xrange(iterations):
-    results = testAiBattle(ai1, ai2, level)
-    if results[0] == 1:
-      gameList1.append(results[1])
-    else:
-      gameList2.append(results[1])
-  
-  # Calculate graph data
-  valueBins1 = []
-  valueBins2 = []
-  for x in xrange(graphDim[0]+1):
-    valueBins1.append(0)
-    valueBins2.append(0)
-    xVal = 1.0*x/graphDim[0]*maxTime
-    for time in gameList1:
-      #if math.fabs(time-xVal) <= 30:
-      #  valueBins1[x] += 1.0/iterations
-      valueBins1[x] += 60.0/iterations*gaussScale*math.exp((-(xVal-time)**2.0)/(2.0*variance))
-    for time in gameList2:
-      #if math.fabs(time-xVal) <= 30:
-      #  valueBins1[x] += 1.0/iterations
-      valueBins2[x] += 60.0/iterations*gaussScale*math.exp((-(xVal-time)**2.0)/(2.0*variance))
-  print (sum(valueBins1) + sum(valueBins2)) * maxTime/graphDim[0]/60
-  
-  # Find maximum y dimension
-  maxWins = int(math.ceil(4*max(max(valueBins1),max(valueBins2))))/4.0
-  
-  # Adjust graph data vertically to match graphDim
-  for x in xrange(len(valueBins1)):
-    valueBins1[x] = 1.0*valueBins1[x]/maxWins*graphDim[1]
-    valueBins2[x] = 1.0*valueBins2[x]/maxWins*graphDim[1]
-  
-  # Clear draw screen
-  glob.windowSurface.fill((255,255,255))
-  
-  # Draw the data
-  for x in xrange(graphDim[0]):
-    pygame.draw.aaline(glob.windowSurface, (0,0,255), (graphOrigin[0]+x, graphOrigin[1]-valueBins1[x]), (graphOrigin[0]+x+1, graphOrigin[1]-valueBins1[x+1]))
-    pygame.draw.aaline(glob.windowSurface, (255,0,0), (graphOrigin[0]+x, graphOrigin[1]-valueBins2[x]), (graphOrigin[0]+x+1, graphOrigin[1]-valueBins2[x+1]))
     
-  # Draw the base graph
-  pygame.draw.line(glob.windowSurface, (0,0,0), graphOrigin, (graphOrigin[0], graphOrigin[1]-graphDim[1]))
-  pygame.draw.line(glob.windowSurface, (0,0,0), graphOrigin, (graphOrigin[0]+graphDim[0], graphOrigin[1]))
-  for x in xrange(maxTime/120 + 1):
-    offset = x*120.0/maxTime*graphDim[0]
-    offset = int(round(offset))
-    pygame.draw.line(glob.windowSurface, (0,0,0), (graphOrigin[0]+offset, graphOrigin[1]), (graphOrigin[0]+offset, graphOrigin[1]+5))
-    drawText(x*2, (graphOrigin[0]+offset, graphOrigin[1]+15), graphFont)
-  for y in xrange(6):
-    offset = y/5.0*graphDim[1]
-    offset = int(round(offset))
-    pygame.draw.line(glob.windowSurface, (0,0,0), (graphOrigin[0], graphOrigin[1]-offset), (graphOrigin[0]-5, graphOrigin[1]-offset))
-    drawText(round(y/5.0*maxWins,2), (graphOrigin[0]-25, graphOrigin[1]-offset), graphFont)
+def drawPie(surface, centerPos, r, start, end, color):
+  # Warning: Can't draw black pies
+  if start >= end:
+    return
+  maskSurface = pygame.Surface((2*r+1,2*r+1))
+  maskSurface.set_colorkey((255,255,255))
+  pygame.gfxdraw.filled_circle(maskSurface, r, r, int(r), (255,255,255))
+  tempSurface = pygame.Surface((2*r+1,2*r+1))
+  tempSurface.set_colorkey((0,0,0))
+  if end-start < 360:
+    tempSurface.fill((0,0,0))
+    corners = [(2*r+2,0), (0,0), (0,2*r+2), (2*r+2,2*r+2), (2*r+2,0), (0,0), (0,2*r+2), (2*r+2,2*r+2)]
+    start = start % 360
+    end = end % 360
+    if start > end:
+      end += 360
+    startIndex = int((start+45)/90)
+    endIndex = int((end+45)/90)
+    startPos = 1.5*r*math.cos(math.radians(start))+r, -1.5*r*math.sin(math.radians(start))+r
+    endPos = 1.5*r*math.cos(math.radians(end))+r, -1.5*r*math.sin(math.radians(end))+r
+    points = [(r,r), startPos] + corners[startIndex:endIndex] + [endPos]
+    pygame.gfxdraw.filled_polygon(tempSurface, points, color)
+  else:
+    tempSurface.fill(color)
+  tempSurface.blit(maskSurface, (0,0))
+  surface.blit(tempSurface, (centerPos[0]-r, centerPos[1]-r))
+
+def combineColors(color1,color2,strengthOf1):
+  if strengthOf1 <= 0:
+    return color1
+  elif strengthOf1 >= 1:
+    return color2
+  else:
+    strengthOf2 = 1 - strengthOf1
+    return int(color1[0]*strengthOf1+color2[0]*strengthOf2),int(color1[1]*strengthOf1+color2[1]*strengthOf2),int(color1[2]*strengthOf1+color2[2]*strengthOf2)
+    
+def changeLuminosity(color, lum):
+  colorObj = pygame.Color(color[0],color[1],color[2],255)
+  hslaValues = colorObj.hsla
+  hslaValues = hslaValues[0], hslaValues[1], lum, hslaValues[3]
+  colorObj.hsla = hslaValues
+  return colorObj.r, colorObj.g, colorObj.b
   
-  # Flip screen and wait
-  pygame.display.update()
-  raw_input("Press Enter to continue...")
-
-
+def getPoissonCount(expectedVal):
+  # Donald Knuth algorithm
+  L = math.exp(-expectedVal)
+  k = 0
+  p = 1.0
+  while True:
+    k += 1
+    p *= random.random()
+    if p <= L:
+      return k-1
+      
+def findIntersection(p,a,q,b): # p and a are endpoints of line1, q and b are endpoints of line 2
+  # From http://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
+  r = a[0]-p[0], a[1]-p[1]  # r = vector from p to a
+  s = b[0]-q[0], b[1]-q[1]  # s = vector from q to b
+  denominator = r[0]*s[1] - r[1]*s[0]  # This is equivalent to (r x s)
+  numeratorT = (q[0]-p[0])*s[1] - (q[1]-p[1])*s[0]  # This is equivalent to (q - p) x s
+  numeratorU = (q[0]-p[0])*r[1] - (q[1]-p[1])*r[0]  # This is equivalent to (q - p) x r
+  if denominator != 0:  # True if the lines are not parallel
+    t = 1.0*numeratorT/denominator
+    u = 1.0*numeratorU/denominator
+    if 0 <= u and u <= 1 and 0 <= t and t<= 1:  # True if the intersection occures on the line segments
+      return q[0]+u*s[0], q[1]+u*s[1]  # This is equivalent to q + us
+    else:
+      return None
+  else:
+    if r[0] == 0 and r[1] == 0:  # True if line1 is a point, which will always produce 0 for num and denom
+      if s[0] == 0 and s[1] == 0:  # True if line2 is also a point
+        if p[0] == q[0] and p[1] == q[1]:  # True if line1 and line2 are the same point
+          return p
+        else:
+          return None
+      else:  # If line1 is a point, we need to fix numerator for collinearity test
+        numeratorU = numeratorT
+    if numeratorU != 0:  # True if the lines are not collinear
+      return None
+    else:
+      if r[0] == 0:  # True if both lines are completely vertical
+        if (p[1]-q[1])*(p[1]-b[1]) <= 0:  # True if p is between q and b
+          return p
+        elif (a[1]-q[1])*(a[1]-b[1]) <= 0:  # True if a is between q and b
+          return a
+        elif (q[1]-p[1])*(q[1]-a[1]) <= 0:  # True if q (and b) is between p and a
+          return q
+        else:  # True if lines are collinear but not overlapping
+          return None
+      else:
+        if (p[0]-q[0])*(p[0]-b[0]) <= 0:  # True if p is between q and b
+          return p
+        elif (a[0]-q[0])*(a[0]-b[0]) <= 0:  # True if a is between q and b
+          return a
+        elif (q[0]-p[0])*(q[0]-a[0]) <= 0:  # True if q (and b) is between p and a
+          return q
+        else:  # True if lines are collinear but not overlapping
+          return None
+    
+      
+  
+    
