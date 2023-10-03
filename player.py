@@ -67,13 +67,16 @@ class Human:
                   if p.player == self and p.selected:
                      caravanPop = int(p.population/2)
                      p.attack(glob.mousedPlanet, caravanPop)
-         if glob.spacePressed:
-            if glob.gameTimeStep == 1.0/glob.frameRate:
-               glob.gameTimeStep = 0.1/glob.frameRate
-            elif glob.gameTimeStep == 0.1/glob.frameRate:
-               glob.gameTimeStep = 10.0/glob.frameRate
-            else:
-               glob.gameTimeStep = 1.0/glob.frameRate
+         if glob.qPressed:
+            util.applySpeedInd(glob.speedListInd - 1)
+         if glob.ePressed:
+            util.applySpeedInd(glob.speedListInd + 1)
+            # if glob.gameTimeStep == 1.0/glob.frameRate:
+            #    glob.gameTimeStep = 0.1/glob.frameRate
+            # elif glob.gameTimeStep == 0.1/glob.frameRate:
+            #    glob.gameTimeStep = 10.0/glob.frameRate
+            # else:
+            #    glob.gameTimeStep = 1.0/glob.frameRate
          accelMag = 20*math.pow(math.hypot(self.winVel[0], self.winVel[1])+0.1,.3)
          accelDir = 0.0, 0.0
          if glob.aHeld:

@@ -7,10 +7,10 @@ def init():
    global safeExit
    global windowSurface, winPosRaw, winPos, fpsClock, fontObj, frameRate, backgroundSurface
    global mouseDrawPos, mousePos, mouseLeftButtonClicked, mouseLeftButtonUnclicked, mouseLeftButtonHeld, mouseRightButtonClicked, mouseRightButtonUnclicked, mouseRightButtonHeld
-   global spacePressed, shiftHeld, aHeld, dHeld, wHeld, sHeld
+   global spacePressed, qPressed, ePressed, shiftHeld, aHeld, dHeld, wHeld, sHeld
    global mousedPlanet
    global playerList, planetList, caravanList, particleList, wallList
-   global gameTimeStep, userToGameInteractionDisabled
+   global speedList, speedListInd, gameTimeStep, userToGameInteractionDisabled
    global userPlayer
 
    safeExit = False
@@ -36,6 +36,8 @@ def init():
    mouseRightButtonHeld = False
 
    spacePressed = False
+   qPressed = False
+   ePressed = False
    shiftHeld = False
    aHeld = False
    dHeld = False
@@ -50,7 +52,10 @@ def init():
    particleList = []
    wallList = []
 
-   gameTimeStep = 1.0 / frameRate
+   speedList = [1/30, 1/10, 1/3, 1, 3, 10, 30]
+   speedListInd = 3
+   gameTimeStep = speedList[speedListInd] / frameRate
+   
    userToGameInteractionDisabled = False
 
    userPlayer = None

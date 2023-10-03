@@ -6,9 +6,11 @@ import numpy as np
 import globals as glob
 
 # Import user classes
+from aiTest import *
 from player import *
 from planet import *
 from caravan import *
+from pointer import *
 from wall import *
 
 # Displays message msg at the position pos on the screen.
@@ -37,6 +39,8 @@ def handleInputEvents():
    glob.mouseRightButtonClicked = False
    glob.mouseRightButtonUnclicked = False
    glob.spacePressed = False
+   glob.qPressed = False
+   glob.ePressed = False
 
    for event in pygame.event.get():
       if event.type == QUIT:
@@ -64,6 +68,10 @@ def handleInputEvents():
       elif event.type == KEYDOWN:
          if event.key == K_SPACE:
             glob.spacePressed = True
+         if event.key == K_q:
+            glob.qPressed = True
+         if event.key == K_e:
+            glob.ePressed = True
          if event.key == K_LSHIFT:
             glob.shiftHeld = True
          if event.key == K_a:
@@ -361,4 +369,112 @@ def centerWinPos():
       range['y'][1] = max(range['y'][1], p.pos[1] + p.size)
    glob.winPosRaw = (range['x'][0] + range['x'][1] - (glob.windowSurface.get_width()-100)) / 2, (range['y'][0] + range['y'][1] - glob.windowSurface.get_height()) / 2
    glob.winPos = int(glob.winPosRaw[0]), int(glob.winPosRaw[1])
+
+def applySpeedInd(speedListInd):
+   speedListInd = max(0, speedListInd)
+   speedListInd = min(len(glob.speedList)-1, speedListInd)
+   glob.speedListInd = speedListInd
+   glob.gameTimeStep = glob.speedList[glob.speedListInd] / glob.frameRate
+
+def runBattle(level, player1, player2, aiTest=None):
+   isAiBattle = aiTest is not None
+   glob.userPlayer = None
+   glob.userToGameInteractionDisabled = True
+   for p in [player1, player2]:
+      if isinstance(p, Human):
+         glob.userPlayer = p
+         glob.userToGameInteractionDisabled = False
+   
+   glob.playerList = []
+   glob.playerList.append(player1)
+   glob.playerList.append(Neutral((191,191,191)))
+   glob.playerList.append(player2)
+   applySpeedInd(3)
+
+   util.makeLevel(level)
+   winner = None
+   gameTimer = 0
+   pointer = Pointer()
+   winDelayMs = 3000
+   
+   # Set up logic specific to Ai testing or not
+   framePeriodLimit = 0
+   if isAiBattle:
+      framePeriodLimit = 0.9*1000/glob.frameRate
+      winDelayMs = 0
       
+      
+   while winner is None or winDelayMs > 0:
+      ####### Handle Input Events ##################################
+      util.handleInputEvents()
+      
+      ####### Perform Game Logic #############################
+      stepsPerFrame = 1
+      if isAiBattle: stepsPerFrame = aiTest.stepsPerFrame
+      for i in range(stepsPerFrame):
+
+         gameTimer += glob.gameTimeStep
+
+         # Determine if mouse is on a planet
+         glob.mousedPlanet = None
+         for p in glob.planetList:
+            if p.isMouseOver():
+               glob.mousedPlanet = p
+
+         # Handle player inputs
+         for p in glob.playerList:
+            p.update()
+
+         # Handle game action
+         for c in glob.caravanList:
+            c.update()
+         for w in glob.wallList:
+            w.update()
+         for p in glob.planetList:
+            p.update()
+         for p in glob.planetList:
+            for w in p.weapons:
+               w.update()
+         for p in glob.particleList:
+            p.update()
+         for c in glob.caravanList:
+            c.update2()
+
+      ####### Update Display #################################
+      glob.windowSurface.blit(glob.backgroundSurface, (0,0))
+
+      for p in glob.planetList:
+         p.drawBack()
+      for p in glob.planetList:
+         p.draw()
+      for p in glob.particleList:
+         p.draw()
+      for w in glob.wallList:
+         w.draw()
+      for c in glob.caravanList:
+         c.draw()
+      util.drawHud()
+      if isAiBattle: aiTest.drawProgressBar()
+      util.drawText(f'FPS: {round(glob.fpsClock.get_fps())}', (20,25), align_h='left')
+      util.drawText(f'Time: {round(gameTimer, 1)}s', (20,60), align_h='left')
+      speed = glob.speedList[glob.speedListInd]
+      if isAiBattle: speed *= aiTest.stepsPerFrame
+      speedText = f'{round(speed)}x'
+      if speed < 1: speedText = f'x/{round(1/speed)}'
+      util.drawText(f'Speed: {speedText}', (20,95), align_h='left')
+      if pointer is not None: pointer.draw()
+
+      winner = util.getWinner()
+      if winner is not None:
+         winDelayMs -= glob.fpsClock.get_time()
+
+      # Draw buffer and wait
+      pygame.display.update()
+      glob.fpsClock.tick(glob.frameRate)
+      
+      if isAiBattle:
+         stepsPerFrameAdjust = 1 if glob.fpsClock.get_rawtime() < framePeriodLimit else -1
+         aiTest.stepsPerFrame += stepsPerFrameAdjust
+         
+   return {'winner':winner, 'time':gameTimer}
+

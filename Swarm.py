@@ -34,73 +34,84 @@ atexit.register(press_any_key)
 pygame.display.set_caption("Swarm")
 pygame.mouse.set_visible(False)
 
-aiTest = AiTest(AiBasic(), AiGood())
-aiTest.runTest(2,100)
 
-glob.playerList = []
-glob.playerList.append(Human((64,64,191)))
-glob.playerList.append(Neutral((191,191,191)))
-glob.playerList.append(AiGood((191,64,64)))
-glob.userPlayer = glob.playerList[0]
+level = 2
+player1 = AiBasic((64,64,191))
+player2 = AiGood((191,64,64))
 
-level = 1
-util.makeLevel(level)
-gameTimer = 0
-pointer = Pointer()
+isAiBattle = True
+for p in [player1, player2]:
+   if isinstance(p, Human):
+      isAiBattle = False
+      
+if isAiBattle:
+   aiTest = AiTest(player1, player2)
+   aiTest.runTest(level, 10)
+else:
+   util.runBattle(level, player1, player2)
 
-while True:
-
-   ####### Handle Input Events ##################################
-   util.handleInputEvents()
-
-   ####### Perform Game Logic #############################
-
-   gameTimer += glob.gameTimeStep
-
-   # Determine if mouse is on a planet
-   glob.mousedPlanet = None
-   for p in glob.planetList:
-      if p.isMouseOver():
-         glob.mousedPlanet = p
-
-   # Handle player inputs
-   for p in glob.playerList:
-      p.update()
-
-   # Handle game action
-   for c in glob.caravanList:
-      c.update()
-   for w in glob.wallList:
-      w.update()
-   for p in glob.planetList:
-      p.update()
-   for p in glob.planetList:
-      for w in p.weapons:
-         w.update()
-   for p in glob.particleList:
-      p.update()
-   for c in glob.caravanList:
-      c.update2()
+pygame.quit()
+glob.safeExit = True
+sys.exit()
 
 
-   ####### Update Display #################################
-   glob.windowSurface.blit(glob.backgroundSurface, (0,0))
+# util.makeLevel(level)
+# gameTimer = 0
+# pointer = Pointer()
 
-   for p in glob.planetList:
-      p.drawBack()
-   for p in glob.planetList:
-      p.draw()
-   for p in glob.particleList:
-      p.draw()
-   for w in glob.wallList:
-      w.draw()
-   for c in glob.caravanList:
-      c.draw()
-   util.drawHud()
-   util.drawText(f'Time: {round(gameTimer, 1)}s', (20,25), align_h='left')
-   util.drawText(f'FPS: {round(glob.fpsClock.get_fps())}', (20,50), align_h='left')
-   pointer.draw()
+# while True:
 
-   # Draw buffer and wait
-   pygame.display.update()
-   glob.fpsClock.tick(glob.frameRate)
+#    ####### Handle Input Events ##################################
+#    util.handleInputEvents()
+
+#    ####### Perform Game Logic #############################
+
+#    gameTimer += glob.gameTimeStep
+
+#    # Determine if mouse is on a planet
+#    glob.mousedPlanet = None
+#    for p in glob.planetList:
+#       if p.isMouseOver():
+#          glob.mousedPlanet = p
+
+#    # Handle player inputs
+#    for p in glob.playerList:
+#       p.update()
+
+#    # Handle game action
+#    for c in glob.caravanList:
+#       c.update()
+#    for w in glob.wallList:
+#       w.update()
+#    for p in glob.planetList:
+#       p.update()
+#    for p in glob.planetList:
+#       for w in p.weapons:
+#          w.update()
+#    for p in glob.particleList:
+#       p.update()
+#    for c in glob.caravanList:
+#       c.update2()
+
+
+#    ####### Update Display #################################
+#    glob.windowSurface.blit(glob.backgroundSurface, (0,0))
+
+#    for p in glob.planetList:
+#       p.drawBack()
+#    for p in glob.planetList:
+#       p.draw()
+#    for p in glob.particleList:
+#       p.draw()
+#    for w in glob.wallList:
+#       w.draw()
+#    for c in glob.caravanList:
+#       c.draw()
+#    util.drawHud()
+#    util.drawText(f'Time: {round(gameTimer, 1)}s', (20,25), align_h='left')
+#    util.drawText(f'FPS: {round(glob.fpsClock.get_fps())}', (20,60), align_h='left')
+#    pointer.draw()
+
+#    # Draw buffer and wait
+#    pygame.display.update()
+#    glob.fpsClock.tick(glob.frameRate)

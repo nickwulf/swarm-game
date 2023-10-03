@@ -15,8 +15,6 @@ class AiTest:
    def __init__(self, ai1, ai2):
       self.ai1 = ai1
       self.ai2 = ai2
-      self.ai1.color = (64,64,191)
-      self.ai2.color = (191,64,64)
       self.level = 0
       self.battleNum = 0
       self.stepsPerFrame = 100
@@ -31,7 +29,13 @@ class AiTest:
       self.gameList1 = []
       self.gameList2 = []
       for i in range(self.battleNum):
-         results = self.runBattle()
+         # runBattle()
+         results = util.runBattle(self.level, self.ai1, self.ai2, self)
+         if results['winner'] is self.ai1:
+            self.gameList1.append(results['time'])
+         else:
+            self.gameList2.append(results['time'])
+            
       graphPic = self.makeGraphPic()
 
       # Pause until user clicks
@@ -63,23 +67,42 @@ class AiTest:
                gameTimer += glob.gameTimeStep
             else:
                gameOver = True
+               
             # Handle player inputs
             for p in glob.playerList:
                p.update()
+                           
             # Handle game action
-            for p in glob.planetList:
-               p.update()
             for c in glob.caravanList:
                c.update()
+            for w in glob.wallList:
+               w.update()
+            for p in glob.planetList:
+               p.update()
+            for p in glob.planetList:
+               for w in p.weapons:
+                  w.update()
+            # for p in glob.particleList:
+            #    p.update()
+            glob.particleList = []
+            for c in glob.caravanList:
+               c.update2()
+
 
          # Draw intermediate results to the screen
-         glob.windowSurface.fill((232,232,232))
+         glob.windowSurface.blit(glob.backgroundSurface, (0,0))
+         
          for p in glob.planetList:
             p.draw()
+         for w in glob.wallList:
+            w.draw()
          for c in glob.caravanList:
             c.draw()
          util.drawHud()
          self.drawProgressBar()
+         util.drawText(f'Time: {round(gameTimer, 1)}s', (20,25), align_h='left')
+         util.drawText(f'FPS: {round(glob.fpsClock.get_fps())}', (20,60), align_h='left')
+         
          pygame.display.update()
          glob.fpsClock.tick(glob.frameRate)
          if glob.fpsClock.get_rawtime() < framePeriodLimit:
