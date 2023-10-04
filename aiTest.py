@@ -52,11 +52,12 @@ class AiTest:
    def runBattle(self):
       oldInteractionValue = glob.userToGameInteractionDisabled
       glob.userToGameInteractionDisabled = True
+      playerN = Neutral((191,191,191))
       glob.playerList = []
       glob.playerList.append(self.ai1)
-      glob.playerList.append(Neutral((191,191,191)))
+      glob.playerList.append(playerN)
       glob.playerList.append(self.ai2)
-      util.makeLevel(self.level)
+      util.makeLevel(self.level, self.ai1, self.ai2, playerN)
       framePeriodLimit = 0.9*1000/glob.frameRate
       gameOver = False
       gameTimer = 0

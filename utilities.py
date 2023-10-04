@@ -1,4 +1,5 @@
 import sys, math, random, time, pygame
+import enum
 from pygame.locals import *
 import numpy as np
 
@@ -12,6 +13,7 @@ from planet import *
 from caravan import *
 from pointer import *
 from wall import *
+
 
 # Displays message msg at the position pos on the screen.
 def drawText(msg, pos, font=None, surf=None, color=(0,0,0), align_h='center'):
@@ -196,53 +198,171 @@ def createBackground(width, height, scale):
 
    return pygame.transform.smoothscale(bg, (width*scale, height*scale))
 
-def makeLevel(level):
+class Level(enum.IntEnum):
+   TUTORIAL = enum.auto()
+   FAR_SIDE = enum.auto()
+   KING_OF_THE_HILL = enum.auto()
+   MAZE = enum.auto()
+   BORROWED_TIME = enum.auto()
+   PROTECTED = enum.auto()
+   DOUBLE_DUTCH = enum.auto()
+   ISLAND_HOPPING = enum.auto()
+
+def makeLevel(level, player1, player2, playerN):
    glob.planetList = []
    glob.caravanList = []
    glob.particleList = []
    glob.wallList = []
-   if level == 1:
-      glob.planetList.append(Planet((100,100), 35.36, 10, glob.playerList[0]))
-      glob.planetList.append(Planet((350,150), 25, 5, glob.playerList[1]))
-      glob.planetList.append(Planet((200,300), 50, 5, glob.playerList[1]))
-      glob.planetList.append(Planet((1000,800), 35.36, 10, glob.playerList[2]))
-      glob.planetList.append(Planet((750,750), 25, 5, glob.playerList[1]))
-      glob.planetList.append(Planet((900,600), 50, 5, glob.playerList[1]))
-   elif level == 2:
-      glob.planetList.append(Planet((100,450), 25, 10, glob.playerList[0]))
-      glob.planetList.append(Planet((250,350), 25, 5, glob.playerList[1]))
-      glob.planetList.append(Planet((250,550), 25, 5, glob.playerList[1]))
-      glob.planetList.append(Planet((400,250), 35.36, 10, glob.playerList[1]))
-      glob.planetList.append(Planet((400,450), 35.36, 10, glob.playerList[1]))
-      glob.planetList.append(Planet((400,650), 35.36, 10, glob.playerList[1]))
-      glob.planetList.append(Planet((550,150), 50, 15, glob.playerList[1]))
-      glob.planetList.append(Planet((550,350), 50, 15, glob.playerList[1]))
-      glob.planetList.append(Planet((550,550), 50, 15, glob.playerList[1]))
-      glob.planetList.append(Planet((550,750), 50, 15, glob.playerList[1]))
-      glob.planetList.append(Planet((700,250), 35.36, 10, glob.playerList[1]))
-      glob.planetList.append(Planet((700,450), 35.36, 10, glob.playerList[1]))
-      glob.planetList.append(Planet((700,650), 35.36, 10, glob.playerList[1]))
-      glob.planetList.append(Planet((850,350), 25, 5, glob.playerList[1]))
-      glob.planetList.append(Planet((850,550), 25, 5, glob.playerList[1]))
-      glob.planetList.append(Planet((1000,450), 25, 10, glob.playerList[2]))
+   if level == Level.TUTORIAL:
+      glob.planetList.append(Planet((0,0), 50, 10, player1))
+      glob.planetList.append(Planet((30,100), 30, 5, player1))
+      glob.planetList.append(Planet((100,50), 30, 5, playerN))
+      glob.planetList.append(Planet((800,50), 30, 10, player2))
+   elif level == Level.FAR_SIDE:
+      glob.planetList.append(Planet((100,100), 35.36, 10, player1))
+      glob.planetList.append(Planet((350,150), 30, 5, playerN))
+      glob.planetList.append(Planet((200,300), 50, 5, playerN))
+      glob.planetList.append(Planet((1000,800), 35.36, 10, player2))
+      glob.planetList.append(Planet((750,750), 25, 5, playerN))
+      glob.planetList.append(Planet((900,600), 50, 5, playerN))
+   elif level == Level.MAZE:
+      glob.planetList.append(Planet((0,-400), 30, 10, playerN))
+      glob.planetList.append(Planet((0,-200), 30, 10, playerN))
+      glob.planetList.append(Planet((0,0), 30, 10, playerN))
+      glob.planetList.append(Planet((0,200), 30, 10, playerN))
+      glob.planetList.append(Planet((0,400), 30, 10, player1))
+      glob.planetList.append(Planet((200,-400), 30, 10, playerN))
+      glob.planetList.append(Planet((200,-200), 30, 10, playerN))
+      glob.planetList.append(Planet((200,0), 30, 10, playerN))
+      glob.planetList.append(Planet((200,200), 30, 10, playerN))
+      glob.planetList.append(Planet((200,400), 30, 10, playerN))
+      glob.planetList.append(Planet((400,-400), 30, 10, playerN))
+      glob.planetList.append(Planet((400,-200), 30, 10, playerN))
+      glob.planetList.append(Planet((400,0), 30, 10, playerN))
+      glob.planetList.append(Planet((400,200), 30, 10, playerN))
+      glob.planetList.append(Planet((400,400), 30, 10, playerN))
+      glob.planetList.append(Planet((600,-400), 30, 10, playerN))
+      glob.planetList.append(Planet((600,-200), 30, 10, playerN))
+      glob.planetList.append(Planet((600,0), 30, 10, playerN))
+      glob.planetList.append(Planet((600,200), 30, 10, playerN))
+      glob.planetList.append(Planet((600,400), 30, 10, playerN))
+      glob.planetList.append(Planet((800,-400), 30, 10, playerN))
+      glob.planetList.append(Planet((800,-200), 30, 10, playerN))
+      glob.planetList.append(Planet((800,0), 30, 10, playerN))
+      glob.planetList.append(Planet((800,200), 30, 10, playerN))
+      glob.planetList.append(Planet((800,400), 30, 10, playerN))
+      glob.planetList.append(Planet((1000,-400), 30, 10, playerN))
+      glob.planetList.append(Planet((1000,-200), 30, 10, playerN))
+      glob.planetList.append(Planet((1000,0), 30, 10, playerN))
+      glob.planetList.append(Planet((1000,200), 30, 10, playerN))
+      glob.planetList.append(Planet((1000,400), 30, 10, playerN))
+      glob.planetList.append(Planet((1200,-400), 30, 10, player2))
+      glob.planetList.append(Planet((1200,-200), 30, 10, playerN))
+      glob.planetList.append(Planet((1200,0), 30, 10, playerN))
+      glob.planetList.append(Planet((1200,200), 30, 10, playerN))
+      glob.planetList.append(Planet((1200,400), 30, 10, playerN))
+      glob.wallList.append(Wall((100,-350), (100,450), player2, 500))
+      glob.wallList.append(Wall((300,-450), (300,-50), player2, 500))
+      glob.wallList.append(Wall((300,450), (300,50), player2, 500))
+      glob.wallList.append(Wall((500,-450), (500,350), player2, 500))
+      glob.wallList.append(Wall((450,300), (850,300), player2, 500))
+      glob.wallList.append(Wall((950,300), (1250,300), player2, 500))
+   elif level == Level.KING_OF_THE_HILL:
+      glob.planetList.append(Planet((100,450), 25, 10, player1))
+      glob.planetList.append(Planet((250,350), 25, 5, playerN))
+      glob.planetList.append(Planet((250,550), 25, 5, playerN))
+      glob.planetList.append(Planet((400,250), 35.36, 10, playerN))
+      glob.planetList.append(Planet((400,450), 35.36, 10, playerN))
+      glob.planetList.append(Planet((400,650), 35.36, 10, playerN))
+      glob.planetList.append(Planet((550,150), 50, 15, playerN))
+      glob.planetList.append(Planet((550,350), 50, 15, playerN))
+      glob.planetList.append(Planet((550,550), 50, 15, playerN))
+      glob.planetList.append(Planet((550,750), 50, 15, playerN))
+      glob.planetList.append(Planet((700,250), 35.36, 10, playerN))
+      glob.planetList.append(Planet((700,450), 35.36, 10, playerN))
+      glob.planetList.append(Planet((700,650), 35.36, 10, playerN))
+      glob.planetList.append(Planet((850,350), 25, 5, playerN))
+      glob.planetList.append(Planet((850,550), 25, 5, playerN))
+      glob.planetList.append(Planet((1000,450), 25, 10, player2))
       glob.planetList[7].addLaser(3, 350, 100)
       glob.planetList[8].addLaser(3, 350, 100)
-   elif level == 3:
-      glob.planetList.append(Planet((100,120), 40, 15, glob.playerList[1]))
-      glob.planetList.append(Planet((100,240), 35, 10, glob.playerList[1]))
-      glob.planetList.append(Planet((100,350), 30, 7, glob.playerList[1]))
-      glob.planetList.append(Planet((100,450), 25, 5, glob.playerList[0]))
-      glob.planetList.append(Planet((100,550), 30, 7, glob.playerList[1]))
-      glob.planetList.append(Planet((100,660), 35, 10, glob.playerList[1]))
-      glob.planetList.append(Planet((100,780), 40, 15, glob.playerList[1]))
-      glob.planetList.append(Planet((1000,450), 75, 5, glob.playerList[2]))
-      glob.planetList.append(Planet((1000,200), 35, 150, glob.playerList[1]))
-      glob.planetList.append(Planet((1000,700), 35, 150, glob.playerList[1]))
+   elif level == Level.BORROWED_TIME:
+      glob.planetList.append(Planet((0,0), 30, 10, player1))
+      glob.wallList.append(Wall((-220,-200), (-180,200), player1, 250))
+      glob.planetList.append(Planet((-400,0), 100, 10, player2))
+      glob.planetList.append(Planet((270,-10), 20, 3, playerN))
+      glob.planetList.append(Planet((350,-40), 30, 5, playerN))
+      glob.planetList.append(Planet((320,60), 30, 20, playerN))
+      glob.planetList.append(Planet((450,20), 50, 10, playerN))
+      glob.planetList.append(Planet((400,130), 30, 10, playerN))
+      glob.planetList.append(Planet((550,-150), 70, 50, playerN))
+      glob.planetList.append(Planet((420,-120), 20, 3, playerN))
+      glob.planetList.append(Planet((580,100), 60, 30, playerN))
+      glob.planetList.append(Planet((700,0), 50, 35, playerN))
+      glob.planetList.append(Planet((480,170), 40, 30, playerN))
+      glob.planetList.append(Planet((350,-170), 25, 20, playerN))
+      glob.planetList.append(Planet((550,0), 25, 5, playerN))
+      glob.planetList.append(Planet((690,-130), 30, 15, playerN))
+   elif level == Level.PROTECTED:
+      glob.planetList.append(Planet((100,120), 40, 15, playerN))
+      glob.planetList.append(Planet((100,240), 35, 10, playerN))
+      glob.planetList.append(Planet((100,350), 30, 7, playerN))
+      glob.planetList.append(Planet((100,450), 25, 5, player1))
+      glob.planetList.append(Planet((100,550), 30, 7, playerN))
+      glob.planetList.append(Planet((100,660), 35, 10, playerN))
+      glob.planetList.append(Planet((100,780), 40, 15, playerN))
+      glob.planetList.append(Planet((1000,450), 75, 5, player2))
+      glob.planetList.append(Planet((1000,200), 35, 150, playerN))
+      glob.planetList.append(Planet((1000,700), 35, 150, playerN))
       glob.planetList[8].addLaser(5, 800, 100)
       glob.planetList[9].addLaser(5, 800, 100)
-      glob.wallList.append(Wall((400,200), (600,700), glob.playerList[1], 100))
+      glob.wallList.append(Wall((400,200), (600,700), playerN, 100))
+   elif level == Level.DOUBLE_DUTCH:
+      glob.planetList.append(Planet((0,0), 30, 10, player2))
+      planetDefend = Planet((-400,-200), 40, 900, playerN)
+      glob.planetList.append(planetDefend)
+      planetDefend.addLaser(20, 300, 25)
+      planetDefend.addLaser(20, 300, 25)
+      glob.wallList.append(Wall((-220,-200), (-180,200), player2, 250))
+      glob.planetList.append(Planet((-600,0), 100, 10, player1))
+      glob.planetList.append(Planet((-650,-130), 20, 5, player1))
+      glob.planetList.append(Planet((270,-10), 20, 3, playerN))
+      glob.planetList.append(Planet((350,-40), 30, 5, playerN))
+      glob.planetList.append(Planet((320,60), 45, 10, playerN))
+      glob.planetList.append(Planet((450,20), 60, 10, playerN))
+      glob.planetList.append(Planet((400,130), 30, 10, playerN))
+      glob.planetList.append(Planet((550,-150), 80, 15, playerN))
+      glob.planetList.append(Planet((420,-120), 25, 3, playerN))
+      glob.planetList.append(Planet((580,100), 60, 12, playerN))
+      glob.planetList.append(Planet((700,0), 50, 10, playerN))
+      glob.planetList.append(Planet((480,170), 45, 8, playerN))
+      glob.planetList.append(Planet((350,-170), 25, 10, playerN))
+      glob.planetList.append(Planet((550,0), 25, 5, playerN))
+      glob.planetList.append(Planet((690,-130), 30, 10, playerN))
+   elif level == Level.ISLAND_HOPPING:
+      glob.planetList.append(Planet((0,0), 30, 10, player1))
+      glob.planetList.append(Planet((1000,0), 30, 10, player2))
+      planetCenter = Planet((500,0), 50, 250, playerN)
+      glob.planetList.append(planetCenter)
+      planetCenter.addLaser(20, 800, 150)
+      glob.planetList.append(Planet((80,100), 30, 10, playerN))
+      glob.planetList.append(Planet((80,-100), 30, 10, playerN))
+      glob.planetList.append(Planet((205,170), 30, 10, playerN))
+      glob.planetList.append(Planet((205,-170), 30, 10, playerN))
+      glob.planetList.append(Planet((350,200), 30, 10, playerN))
+      glob.planetList.append(Planet((350,-200), 30, 10, playerN))
+      glob.planetList.append(Planet((500,210), 30, 10, playerN))
+      glob.planetList.append(Planet((500,-210), 30, 10, playerN))
+      glob.planetList.append(Planet((650,200), 30, 10, playerN))
+      glob.planetList.append(Planet((650,-200), 30, 10, playerN))
+      glob.planetList.append(Planet((795,170), 30, 10, playerN))
+      glob.planetList.append(Planet((795,-170), 30, 10, playerN))
+      glob.planetList.append(Planet((920,100), 30, 10, playerN))
+      glob.planetList.append(Planet((920,-100), 30, 10, playerN))
+     
       
    centerWinPos()
+   
 
 def getWinner(countNeutral=False):
    aliveList = []
@@ -386,14 +506,14 @@ def runBattle(level, player1, player2, aiTest=None):
          glob.userToGameInteractionDisabled = False
    
    glob.playerList = []
+   playerN = Neutral((191,191,191))
    glob.playerList.append(player1)
-   glob.playerList.append(Neutral((191,191,191)))
+   glob.playerList.append(playerN)
    glob.playerList.append(player2)
    applySpeedInd(3)
 
-   util.makeLevel(level)
-   winner = None
-   gameTimer = 0
+   result = {'winner':None, 'time':0}
+   util.makeLevel(level, player1, player2, playerN)
    pointer = Pointer()
    winDelayMs = 3000
    
@@ -404,7 +524,7 @@ def runBattle(level, player1, player2, aiTest=None):
       winDelayMs = 0
       
       
-   while winner is None or winDelayMs > 0:
+   while result['winner'] is None or winDelayMs > 0:
       ####### Handle Input Events ##################################
       util.handleInputEvents()
       
@@ -413,7 +533,7 @@ def runBattle(level, player1, player2, aiTest=None):
       if isAiBattle: stepsPerFrame = aiTest.stepsPerFrame
       for i in range(stepsPerFrame):
 
-         gameTimer += glob.gameTimeStep
+         result['time'] += glob.gameTimeStep
 
          # Determine if mouse is on a planet
          glob.mousedPlanet = None
@@ -455,17 +575,25 @@ def runBattle(level, player1, player2, aiTest=None):
          c.draw()
       util.drawHud()
       if isAiBattle: aiTest.drawProgressBar()
-      util.drawText(f'FPS: {round(glob.fpsClock.get_fps())}', (20,25), align_h='left')
-      util.drawText(f'Time: {round(gameTimer, 1)}s', (20,60), align_h='left')
+      
+      statTexts = []
+      statTexts.append(f"Level: {level}, {Level(level).name.replace('_',' ').title()}")
+      statTexts.append(f'FPS: {round(glob.fpsClock.get_fps())}')
+      statTexts.append(f"Time: {round(result['time'], 1)}s")
       speed = glob.speedList[glob.speedListInd]
       if isAiBattle: speed *= aiTest.stepsPerFrame
       speedText = f'{round(speed)}x'
       if speed < 1: speedText = f'x/{round(1/speed)}'
-      util.drawText(f'Speed: {speedText}', (20,95), align_h='left')
+      statTexts.append(f'Speed: {speedText}')
+      yVal = 25
+      for t in statTexts:
+         util.drawText(t, (20,yVal), align_h='left')
+         yVal += 35
+      
       if pointer is not None: pointer.draw()
 
-      winner = util.getWinner()
-      if winner is not None:
+      result['winner'] = util.getWinner()
+      if result['winner'] is not None:
          winDelayMs -= glob.fpsClock.get_time()
 
       # Draw buffer and wait
@@ -476,5 +604,5 @@ def runBattle(level, player1, player2, aiTest=None):
          stepsPerFrameAdjust = 1 if glob.fpsClock.get_rawtime() < framePeriodLimit else -1
          aiTest.stepsPerFrame += stepsPerFrameAdjust
          
-   return {'winner':winner, 'time':gameTimer}
+   return result
 
