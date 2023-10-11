@@ -51,9 +51,10 @@ def launchGame(player1='Human', player2='AiGood', level=1, doSingleLevel=False):
       if level.isnumeric():
          level = int(level)
       else:
-         for lev in util.Level:
+         for lev in Level:
             if lev.name.lower() == level.lower().replace(' ', '_'):
                level = lev
+               break
 
    players = [player1, player2]
    playerDefaultColors = [(64, 64, 191), (191, 64, 64)]
@@ -70,7 +71,7 @@ def launchGame(player1='Human', player2='AiGood', level=1, doSingleLevel=False):
          isAiBattle = False
 
    while True:
-      if level not in iter(util.Level):
+      if level not in iter(Level):
          print('End of Game')
          pygame.quit()
          glob.safeExit = True
@@ -81,7 +82,7 @@ def launchGame(player1='Human', player2='AiGood', level=1, doSingleLevel=False):
          aiTest = AiTest(*players)
          aiTest.runTest(level, 100)
       else:
-         result = util.runBattle(level, *players)
+         result = runBattle(level, *players)
 
       if isAiBattle or isinstance(result['winner'], Human):
          level += 1
@@ -95,12 +96,15 @@ def launchGame(player1='Human', player2='AiGood', level=1, doSingleLevel=False):
 
 
 # Displays message msg at the position pos on the screen.
-def drawText(msg, pos, font=None, surf=None, color=(0,0,0), align_h='center'):
+def drawText(msg, pos, font=glob.fontObj, surf=glob.windowSurface, color=(0,0,0), align_h='center', is_vert=False):
+   # Defaults aren't being properly set up above, probably because I'm trying to import their values from glob or something
    if font is None:
       font = glob.fontObj
    if surf is None:
       surf = glob.windowSurface
    text = font.render(str(msg), True, color)
+   
+   if is_vert: text = pygame.transform.rotate(text, -90)
    textRect = text.get_rect()
    textRect.center = pos
    if align_h == 'left': textRect.left = pos[0]
@@ -221,6 +225,8 @@ def drawHud():
       barTop = round(barDims[1]*AccumPlayerPops[i]/totalPop)
       barBottom = round(barDims[1]*AccumPlayerPops[i+1]/totalPop)
       pygame.gfxdraw.box(glob.windowSurface, (barOffset1[0], barOffset1[1]+barTop, barDims[0], barBottom-barTop), glob.playerList[i].color)
+   barFont = pygame.font.SysFont("comic sans ms", 18, True, False)
+   drawText('Population', (barOffset1[0]+barDims[0]/2, barOffset1[1]+barDims[1]/2), font=barFont, is_vert=True)
 
    # Draw growth bar
    for i in range(len(AccumPlayerGrowths)-1):
@@ -229,6 +235,7 @@ def drawHud():
       barTop = round(barDims[1]*AccumPlayerGrowths[i]/totalGrowth)
       barBottom = round(barDims[1]*AccumPlayerGrowths[i+1]/totalGrowth)
       pygame.gfxdraw.box(glob.windowSurface, (barOffset2[0], barOffset2[1]+barTop, barDims[0], barBottom-barTop), glob.playerList[i].color)
+   drawText('Production', (barOffset2[0]+barDims[0]/2, barOffset2[1]+barDims[1]/2), font=barFont, is_vert=True)
 
 def createBackground(width, height, scale):
    for color in range(3):
@@ -286,6 +293,10 @@ class Level(enum.IntEnum):
    PROTECTED = enum.auto()
    DOUBLE_DUTCH = enum.auto()
    ISLAND_HOPPING = enum.auto()
+   DEMO_PLANETS = -1
+   DEMO_LASERS = -2
+   DEMO_WALLS = -3
+   DEMO_GROW = -4
 
 def makeLevel(level, player1, player2, playerN):
    glob.planetList = []
@@ -355,7 +366,9 @@ def makeLevel(level, player1, player2, playerN):
       glob.planetList.append(Planet((400,650), 35.36, 10, playerN))
       glob.planetList.append(Planet((550,150), 50, 15, playerN))
       glob.planetList.append(Planet((550,350), 50, 15, playerN))
+      glob.planetList[-1].addLaser(2, 350, 100)
       glob.planetList.append(Planet((550,550), 50, 15, playerN))
+      glob.planetList[-1].addLaser(2, 350, 100)
       glob.planetList.append(Planet((550,750), 50, 15, playerN))
       glob.planetList.append(Planet((700,250), 35.36, 10, playerN))
       glob.planetList.append(Planet((700,450), 35.36, 10, playerN))
@@ -363,8 +376,6 @@ def makeLevel(level, player1, player2, playerN):
       glob.planetList.append(Planet((850,350), 25, 5, playerN))
       glob.planetList.append(Planet((850,550), 25, 5, playerN))
       glob.planetList.append(Planet((1000,450), 25, 10, player2))
-      glob.planetList[7].addLaser(3, 350, 100)
-      glob.planetList[8].addLaser(3, 350, 100)
    elif level == Level.BORROWED_TIME:
       glob.planetList.append(Planet((0,0), 30, 10, player1))
       glob.wallList.append(Wall((-220,-200), (-180,200), player1, 250))
@@ -383,13 +394,13 @@ def makeLevel(level, player1, player2, playerN):
       glob.planetList.append(Planet((550,0), 25, 5, playerN))
       glob.planetList.append(Planet((690,-130), 30, 15, playerN))
    elif level == Level.PROTECTED:
-      glob.planetList.append(Planet((100,120), 40, 15, playerN))
-      glob.planetList.append(Planet((100,240), 35, 10, playerN))
-      glob.planetList.append(Planet((100,350), 30, 7, playerN))
+      glob.planetList.append(Planet((0,120), 40, 15, playerN))
+      glob.planetList.append(Planet((55,240), 35, 10, playerN))
+      glob.planetList.append(Planet((85,350), 30, 7, playerN))
       glob.planetList.append(Planet((100,450), 25, 5, player1))
-      glob.planetList.append(Planet((100,550), 30, 7, playerN))
-      glob.planetList.append(Planet((100,660), 35, 10, playerN))
-      glob.planetList.append(Planet((100,780), 40, 15, playerN))
+      glob.planetList.append(Planet((85,550), 30, 7, playerN))
+      glob.planetList.append(Planet((55,660), 35, 10, playerN))
+      glob.planetList.append(Planet((0,780), 40, 15, playerN))
       glob.planetList.append(Planet((1000,450), 75, 5, player2))
       glob.planetList.append(Planet((1000,200), 35, 150, playerN))
       glob.planetList.append(Planet((1000,700), 35, 150, playerN))
@@ -398,10 +409,9 @@ def makeLevel(level, player1, player2, playerN):
       glob.wallList.append(Wall((400,200), (600,700), playerN, 100))
    elif level == Level.DOUBLE_DUTCH:
       glob.planetList.append(Planet((0,0), 30, 10, player2))
-      planetDefend = Planet((-400,-200), 40, 900, playerN)
-      glob.planetList.append(planetDefend)
-      planetDefend.addLaser(20, 300, 25)
-      planetDefend.addLaser(20, 300, 25)
+      glob.planetList.append(Planet((-400,-200), 40, 900, playerN))
+      glob.planetList[-1].addLaser(20, 300, 25)
+      glob.planetList[-1].addLaser(20, 300, 25)
       glob.wallList.append(Wall((-220,-200), (-180,200), player2, 250))
       glob.planetList.append(Planet((-600,0), 100, 10, player1))
       glob.planetList.append(Planet((-650,-130), 20, 5, player1))
@@ -438,7 +448,31 @@ def makeLevel(level, player1, player2, playerN):
       glob.planetList.append(Planet((795,-170), 30, 10, playerN))
       glob.planetList.append(Planet((920,100), 30, 10, playerN))
       glob.planetList.append(Planet((920,-100), 30, 10, playerN))
-     
+   elif level == Level.DEMO_PLANETS:
+      glob.planetList.append(Planet((0,0), 40, 1, player1))
+      glob.planetList.append(Planet((200,0), 30, 10, playerN))
+      glob.planetList.append(Planet((100,200), 30, 1, player2))
+   elif level == Level.DEMO_LASERS:
+      glob.planetList.append(Planet((0,0), 70, 1, player1))
+      glob.planetList.append(Planet((1200,0), 30, 10, playerN))
+      glob.planetList.append(Planet((1200,100), 10, 1, player2))
+      glob.planetList.append(Planet((600,100), 40, 10, player2))
+      glob.planetList[-1].addLaser(1, 120, 300)
+      glob.planetList.append(Planet((800,100), 40, 10, player2))
+      glob.planetList[-1].addLaser(1, 1000, 36)
+      glob.planetList.append(Planet((1000,100), 40, 10, player2))
+      glob.planetList[-1].addLaser(100, 120, 50)
+   elif level == Level.DEMO_WALLS:
+      glob.planetList.append(Planet((0,0), 70, 1, player1))
+      glob.planetList.append(Planet((0,700), 20, 10, player2))
+      glob.wallList.append(Wall((-200,300), (200,300), player2, 200))
+      glob.wallList.append(Wall((-200,370), (200,370), player2, 200))
+   elif level == Level.DEMO_GROW:
+      glob.planetList.append(Planet((0,0), 50, 1, player1))
+      glob.planetList.append(Planet((200,-50), 60, 15, playerN))
+      glob.planetList.append(Planet((120,100), 40, 10, playerN))
+      glob.planetList.append(Planet((1000,0), 20, 1, player2))
+      
       
    centerWinPos()
    
@@ -592,7 +626,7 @@ def runBattle(level, player1, player2, aiTest=None):
    applySpeedInd(3)
 
    result = {'winner':None, 'time':0}
-   util.makeLevel(level, player1, player2, playerN)
+   makeLevel(level, player1, player2, playerN)
    pointer = Pointer()
    winDelayMs = 3000
    
@@ -605,7 +639,7 @@ def runBattle(level, player1, player2, aiTest=None):
       
    while result['winner'] is None or winDelayMs > 0:
       ####### Handle Input Events ##################################
-      util.handleInputEvents()
+      handleInputEvents()
       
       ####### Perform Game Logic #############################
       stepsPerFrame = 1
@@ -652,7 +686,7 @@ def runBattle(level, player1, player2, aiTest=None):
          w.draw()
       for c in glob.caravanList:
          c.draw()
-      util.drawHud()
+      drawHud()
       if isAiBattle: aiTest.drawProgressBar()
       
       statTexts = []
@@ -666,12 +700,12 @@ def runBattle(level, player1, player2, aiTest=None):
       statTexts.append(f'Speed: {speedText}')
       yVal = 25
       for t in statTexts:
-         util.drawText(t, (20,yVal), align_h='left')
+         drawText(t, (20,yVal), align_h='left')
          yVal += 35
       
       if pointer is not None: pointer.draw()
 
-      result['winner'] = util.getWinner()
+      result['winner'] = getWinner()
       if result['winner'] is not None:
          winDelayMs -= glob.fpsClock.get_time()
 

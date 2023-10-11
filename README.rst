@@ -20,22 +20,23 @@ You'll also encounter walls out in space (somehow a thing), that destroy any fig
 
 Controls
 ________
-A, W, S, D  -> Pan the view around
-Q           -> Slow down time
-E           -> Speed up time
-Left Mouse  -> Click to select/deselect a planet. Drag to select a group of planets
-Right Mouse -> Click to send fighters from the selected planet/s to another planet
-Left Shift  -> Hold to keep the selected planets even while selecting or deselecting anther planet. Useful to grow or selectively shrink your selected group
+* A, W, S, D  ➜ Pan the view around.
+* Q           ➜ Slow down time.
+* E           ➜ Speed up time.
+* Left Mouse  ➜ Click to select/deselect a planet. Drag to select a group of planets. Double click in empty space to deselect all.
+* Right Mouse ➜ Click to send fighters from the selected planet/s to another planet.
+* Left Shift  ➜ Hold to keep the selected planets even while selecting or deselecting anther planet. Useful to grow or selectively shrink your selected group.
 
 Quick Start
 -----------
-The quickest way to get started is to download the GitHub project onto your machine, unzip, and go to the top-level directory. From here, launch the game using the command "python main.py". You can use other command line options to change certain settings such as switching players between human or other AIs or changing the starting level. Run the command "python main.py -h" to see the full list of options in the help menu.
+The quickest way to get started is to download the GitHub project onto your machine, unzip, and go to the top-level directory. From here, launch the game using the command ``python main.py``. You can use other command line options to change certain settings such as switching players between human or other AIs or changing the starting level. Run the command ``python main.py -h`` to see the full list of options in the help menu.
 
 Dependencies
 ____________
 You'll also need to install these other python packages before you can run the game:
-- pygame >= 2.4
-- numpy >= 1.21.6
+
+- pygame ≥ 2.4
+- numpy ≥ 1.21.6
 
 Python Install
 --------------
@@ -43,17 +44,17 @@ This code was structured as a Python package with installation scripts so that i
 
 Download
 ________
-1. Download directly from GitHub at https://github.com/nickwulf/swarm-game and unzip where you want, or
-2. If you have git installed on Linux, run the command "git clone https://github.com/nickwulf/swarm-game.git <file_location>" to clone the project to you local area.
+#. Download directly from GitHub at https://github.com/nickwulf/swarm-game and unzip where you want, or
+#. If you have git installed on Linux, run the command ``git clone https://github.com/nickwulf/swarm-game.git <file_location>`` to clone the project to you local area.
 
 Build
 _____
-Build the Python package by navigating to the top-level project directory, and run the command "python setup.py sdist"
+Build the Python package by navigating to the top-level project directory, and run the command ``python setup.py sdist``
 
 Install
 _______
-Find the new Python package in the new "dist" directory, and install it into your Python environment by running the command "python -m pip install ./dist/<dist_file>.tar.gz".
+Find the new Python package in the new **dist** directory, and install it into your Python environment by running the command ``python -m pip install ./dist/<dist_file>.tar.gz``.
 
 Integrate
 _________
-Integrate the package into any of your other Python projects the same way as with any other package. For example, import the Human player class with the line "from swarmgame.player import Human". Alternatively, you can straight up run the game by importing the launchGame function from the utilities module and executing the function as so: "from swarmgame.utilities import launchGame; launchGame()"
+Integrate the package into any of your other Python projects the same way as with any other package. For example, import the Human player class with the line ``from swarmgame.player import Human``. Alternatively, you can straight up run the game by importing the launchGame function from the utilities module and executing the function as so: ``from swarmgame.utilities import launchGame; launchGame()``
